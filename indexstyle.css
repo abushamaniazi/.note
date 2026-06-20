@@ -4,6 +4,12 @@ body {
     font-optical-sizing: auto;
     font-weight: 500;
     font-style: normal;
+    margin: 0;
+    padding: 0;
+}
+
+.terminalCont {
+    margin-top: 6px;
 }
 
 .terminalPrompt {
@@ -32,4 +38,80 @@ body {
 }
 .userInput:focus{
     outline: none;
+}
+
+#escUn {
+    position: absolute;
+    opacity: 0;
+    visibility: hidden;
+    transition:  0.2s ease-in-out;
+    height: 100dvh;
+    width: 100dvw;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+#escUn.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.escCont {
+    display: flex;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100%;
+    width: 100%;
+}
+
+.escBg {
+    position: fixed;
+    background-color: rgba(49, 49, 49, 0.5);
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(1.4px);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.escMenu {
+    color: white;
+    opacity: 100% !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.escBtn {
+    color: white;
+    text-decoration: none;
+    font-size: 1.2rem;
+    position: relative;
+    transition: color 0.2s ease;
+    user-select: none;
+}
+.escBtn::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    height: 2px;
+    width: 100%;
+    background-color: white;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+.escBtn:hover {
+    color: white;
+}
+.escBtn:hover::after {
+    transform: scaleX(1);
+}
+
+#colPick {
+    align-items: center;
 }

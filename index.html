@@ -14,13 +14,42 @@
         </div>
     </div>
 
+    <div id="escUn"> 
+        <div class="escCont" id="escContr">
+            <div class="escBg"></div>
+            <div class="escMenu">
+                <span class="escBtn">save placeholder</span> 
+                <span class="escBtn">open placeholder</span> 
+                <span class="escBtn" id="colPick">pick theme</span>
+            </div>
+        </div>
+    </div>
+
     <script>
+        const escUn = document.getElementById("escUn");
+        escUn.tabIndex = -1
         const textBox = document.getElementById("textBox");
-        textBox.addEventListener("input", function(e)  {
-            console.log("detect success")
-            textBox.style.height = "auto"
-            textBox.style.height = textBox.scrollHeight + "px"
-            console.log(textBox.style.height)
+
+        window.addEventListener("keydown", function(e) {
+            if (e.key === "Escape") {
+                const isVisible = escUn.classList.toggle("visible")
+                e.preventDefault()
+                if (isVisible) {
+                    escUn.focus();
+                    textBox.blur();
+                    console.log(document.activeElement);
+                } else {
+                    console.log(document.activeElement);
+                    textBox.focus();
+                }
+            }
+        });
+
+        textBox.addEventListener("input", function(e) {
+            console.log("detect success");
+            textBox.style.height = "auto";
+            textBox.style.height = textBox.scrollHeight + "px";
+            console.log(textBox.style.height);
         });
     </script>
 </body>

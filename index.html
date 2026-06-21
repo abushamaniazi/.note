@@ -18,9 +18,10 @@
         <div class="escCont" id="escContr">
             <div class="escBg"></div>
             <div class="escMenu">
-                <span class="escBtn">save placeholder</span> 
-                <span class="escBtn">open placeholder</span> 
-                <span class="escBtn" id="colPick">pick theme</span>
+                <button class="escBtn" onclick="test()">save placeholder</span> 
+                <button class="escBtn" onclick="test()">open placeholder</span> 
+                <button class="escBtn" id="colPick" onclick="test()">pick theme</span>
+                <button class="escBtn" id="fontChange" onclick="test()">change font</button>
             </div>
         </div>
     </div>
@@ -37,20 +38,24 @@
                 if (isVisible) {
                     escUn.focus();
                     textBox.blur();
+                    textBox.tabIndex = -1
                     console.log(document.activeElement);
                 } else {
-                    console.log(document.activeElement);
                     textBox.focus();
+                    escUn.tabIndex = -1
+                    console.log(document.activeElement);
                 }
             }
         });
 
         textBox.addEventListener("input", function(e) {
-            console.log("detect success");
             textBox.style.height = "auto";
             textBox.style.height = textBox.scrollHeight + "px";
-            console.log(textBox.style.height);
         });
+
+        function test() {
+            console.log("button pressed");  
+        }
     </script>
 </body>
 </html>

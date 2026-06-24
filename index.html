@@ -18,16 +18,18 @@
         <div class="escCont" id="escContr">
             <div class="escBg"></div>
             <div class="escMenu">
-                <button class="uBtn" onclick="test()">save placeholder</button> 
-                <button class="uBtn" onclick="test()">open placeholder</button> 
+                <button class="uBtn" id="saveBtn" onclick="saveFile()">save text file</button> 
+                <button class="uBtn" id="openBtn" onclick="redirectOpen()">open text file</button> 
+                <input type="file" id="openInput" accept=".txt" style="display: none;"/>
                 <button class="uBtn" id="colPick" onclick="test()">pick theme</button>
                 <button class="uBtn" id="fontChange" onclick="fontUI()">change font</button>
             </div>
             <div class="fontCont" id="fontCont">
-                <button class="uBtn" id="fileUp" onclick="redirect()">upload file</button>
-                <input type="file" id="realUp" style="display: none;"/>  
+                <button class="uBtn" id="fileUp" onclick="redirectUpload()">upload file</button>
+                <input type="file" id="realUp" accept=".ttf, .otf, .woff, .woff2" style="display: none;"/>  
                 <input type="text" id="fontLink" placeholder="enter font link..."/>
                 <button class="uBtn" id="fontBtn" type="submit">confirm link</button>
+                <input type="range" min="0.4" max="1.6" step="0.1" value="1.2" placeholder="font size" class="sizeSlider" id="slider"/>
             </div>
         </div>
     </div>
@@ -39,8 +41,16 @@
         const fontCont = document.getElementById("fontCont");
         const uplBtn = document.getElementById("fileUp");
         const uplInput = document.getElementById("realUp");
+        const fileUpload = document.getElementById("realUp");
         const fontLink = document.getElementById("fontLink");
         const fontBtn = document.getElementById("fontBtn");
+        const fontSlider = document.getElementById("slider");
+        const openBtn = document.getElementById("openBtn");
+        const openInput = document.getElementById("openInput");
+        const saveBtn = document.getElementById("saveBtn");
+        const textArea = document.getElementById("textBox");
+        // var outp = document.getElementById("demo");
+        // outp.innerHTML = fontSlider.value;
 
         window.addEventListener("keydown", function(e) {
             if (e.key === "Escape") {
@@ -68,10 +78,12 @@
             console.log("button pressed");  
         }
 
-        function redirect() {
-            uplBtn.addEventListener("click", () => {
-                uplInput.click();
-            });
+        function redirectOpen() {
+            openInput.click();
+        }
+
+        function redirectUpload() {
+            uplInput.click();
         }
 
         function fontUI() {
@@ -84,7 +96,7 @@
             const fontText = fontLink.value;
             uploadedFont = fontText.trim();
             console.log("submitted link:", uploadedFont);
-            link = document.createElement("link");
+            const link = document.createElement("link");
             link.rel = "stylesheet";
             link.href = uploadedFont;
             document.head.appendChild(link);
@@ -99,7 +111,7 @@
                 const fontText = fontLink.value;
                 uploadedFont = fontText.trim();
                 console.log("submitted link:", uploadedFont);
-                link = document.createElement("link");
+                const link = document.createElement("link");
                 link.rel = "stylesheet";
                 link.href = uploadedFont;
                 document.head.appendChild(link);
@@ -110,6 +122,62 @@
                 fontLink.value = '';
             }
         });
+
+        fontSlider.oninput = function() {
+            document.documentElement.style.setProperty("--custom-fSize", this.value +"rem");
+            // outp.innerHTML = this.value;
+        }
+
+        openInput.addEventListener("change", handleFile);
+        fileUpload.addEventListener("change", handleFile);
+
+        function handleFile(event) {
+            const file = event.target.files[0];
+
+            if (file) {
+                const fileName = file.name;    
+                const fileExt = fileName.split(".").pop().toLowerCase();
+                if (fileExt == "txt") {
+                    console.log("text name: ", fileName);
+                    const fileReader = new FileReader();
+                    fileReader.onload = () => {
+                        console.log("fR init");
+                        console.log("file: ", fileReader.result);
+                        textBox.value = fileReader.result;
+                        textBox.style.height = "auto";
+                        textBox.style.height = textBox.scrollHeight + "px";
+                    }
+                    fileReader.readAsText(file);
+                } else if (["ttf", "otf", "woff", "woff2"].includes(fileExt)) {
+                    console.log("font name: ", fileName);
+                    const fileReader = new FileReader();
+                    fileReader.onload = () => {
+                        console.log("fR init");
+                        const fontDataURL = fileReader.result;
+                        const style = document.createElement("style");
+                        style.innerHTML = `
+                        @font-face {
+                        font-family: "UploadedFont";
+                        src: url("${fontDataURL}");
+                        }`;
+                        document.head.appendChild(style);
+                        document.documentElement.style.setProperty("--custom-font", '"UploadedFont", monospace');
+                    }
+                    fileReader.readAsDataURL(file);
+                }
+            }
+        }
+
+        function saveFile() {
+            let valueInput = textArea.value;
+            let blobMIME = new Blob([valueInput], { type: "text/plain" });
+            let url = URL.createObjectURL(blobMIME);
+            let elem = document.createElement("a")
+            elem.setAttribute("download", "note.txt");
+            elem.href = url;
+            elem.click();
+            console.log(blobMIME)
+        }
     </script>
 </body>
 </html>

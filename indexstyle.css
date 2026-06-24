@@ -1,5 +1,6 @@
 :root {
     --custom-font: "JetBrains Mono", monospace;
+    --custom-fSize: 1.2rem;
 }
 
 body {
@@ -8,8 +9,10 @@ body {
     padding: 0;
 }
 
-*, textarea, button {
+*, textarea, button, p {
     font-family: var(--custom-font);
+    font-size: var(--custom-fSize);
+    color: white;
 }
 
 .textCont {
@@ -41,7 +44,7 @@ body {
 }
 
 #escUn {
-    position: absolute;
+    position: fixed;
     opacity: 0;
     visibility: hidden;
     transition:  0.2s ease-in-out;
@@ -83,6 +86,10 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    background-color: black;
+    padding: 10px;
+    z-index: 2 !important;
+    border-radius: 0.6rem;
 }
 
 .uBtn {
@@ -138,6 +145,10 @@ body {
     align-items: baseline;
     left: 75%;
     transform: translateX(-50%);
+    font-size: var(--custom-fSize);
+    padding: 10px;
+    background-color: black; 
+    border-radius: 0.6rem;
 }
 #fontCont.visible {
     opacity: 1;
@@ -154,8 +165,18 @@ body {
 
 #fileUp {
     align-items: center;
-}
+}  
 
-/* #fontLink { */
-    /* width: 75%; */
-/* } */
+.sizeSlider {
+    width: 100%;
+    opacity: 0.7;
+    -webkit-transition: 0.2s;
+    transition: opacity 0.2s ease-in-out;
+    height: 4px;
+    margin-top: 8px;
+    cursor: pointer;
+    accent-color: rgb(95, 91, 91);
+}
+.sizeSlider:hover {
+    opacity: 1;
+}

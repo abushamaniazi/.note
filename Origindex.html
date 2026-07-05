@@ -10,8 +10,7 @@
 <body>
     <div class="textCont">
         <div class="textPrompt">
-            <!-- <div class="userInput" id="textBox" contenteditable="true" placeholder="enter text here | ctrl+b to bold | ctrl+i to italics | ctrl+u to underline" autofocus></div> -->
-            <div class="userInput" id="textBox" spellcheck="false" contenteditable="true" placeholder="enter text here | ctrl b to bold | ctrl i to italics | ctrl u to underline" autofocus></div>
+            <textarea class="userInput" id="textBox" placeholder="enter text here...." autocomplete="off" autofocus rows="1"></textarea>
         </div>
     </div>
 
@@ -19,10 +18,10 @@
         <div class="escCont" id="escContr">
             <div class="escBg"></div>
             <div class="escMenu">
-                <button class="uBtn" id="saveBtn" onclick="saveFile()">save file</button> 
-                <button class="uBtn" id="openBtn" onclick="redirectOpen()">open file</button> 
-                <input type="file" id="openInput" accept=".txt, .html" style="display: none;"/>
-                <button class="uBtn" id="colPick" onclick="colorGUI()">theme</button>
+                <button class="uBtn" id="saveBtn" onclick="saveFile()">save text file</button> 
+                <button class="uBtn" id="openBtn" onclick="redirectOpen()">open text file</button> 
+                <input type="file" id="openInput" accept=".txt" style="display: none;"/>
+                <button class="uBtn" id="colPick" onclick="colorGUI()">pick theme</button>
                 <div class="colorCont" id="colorCont">
                     <div class="cBRow">
                         <button class="cBtn" id="dark" onclick="darkTheme()"> </button>
@@ -52,12 +51,13 @@
                         <input type="range" min="0" max="100" step="10" value="80" placeholder="accent opacity" class="accentOpacity" id="accentOpacity"/>
                     </div>
                 </div>
-                <button class="uBtn" id="fontChange" onclick="fontUI()">text settings</button>
+                <button class="uBtn" id="fontChange" onclick="fontUI()">change font</button>
                 <div class="fontCont" id="fontCont">
                     <button class="uBtn" id="fileUp" onclick="redirectUpload()">upload file</button>
                     <input type="file" id="realUp" accept=".ttf, .otf, .woff, .woff2" style="display: none;"/>  
                     <input type="text" id="fontLink" placeholder="enter font link..."/>
                     <button class="uBtn" id="fontBtn" type="submit">confirm link</button>
+
                     <div class="sliderGroup">
                         <span class="fSize">font size</span><p id="sizeValue">1.2</p>
                         <input type="range" min="0.8" max="1.6" step="0.1" value="1.2" placeholder="font size" class="sizeSlider" id="sliderSize"/>
@@ -68,16 +68,7 @@
                         <input type="range" min="100" max="1000" step="50" value="350" placeholder="font weight" class="sliderWeight" id="sliderWeight"/>
                         <p class="fInfo">font weight might be fixed for some fonts.</p>
                     </div>
-
-                    <div class="toggleSpell">
-                        <p class="spellCheck">spellcheck</p>
-                        <label class="switch">
-                            <input type="checkbox" id="spellTick"> 
-                            <span class="slider"></span>
-                        </label>
-                    </div>
                 </div>
-                <button class="uBtn" id="resetBtn" onclick="resetText()">reset text</button>
             </div>
         </div>
     </div>
@@ -108,59 +99,7 @@
         const textColor = document.getElementById("textColor");
         const accentColor = document.getElementById("accentColor");
         const accentOpacity = document.getElementById("accentOpacity");
-        const spellTick = document.getElementById("spellTick");
-        const resetBtn = document.getElementById("resetBtn");
         let opacity;
-
-        textBox.addEventListener("input", (e) => {
-            if (e.target.innerText.trim() === "") {
-                e.target.innerHTML = ''; 
-            }
-        })
-
-         textBox.addEventListener("keydown", function(e) {
-            const ctrlKey = e.ctrlKey || e.metaKey;
-            if (ctrlKey) {
-                switch(e.key.toLowerCase()) {
-                
-                case "b":
-                    e.preventDefault();
-                    document.execCommand("bold", false, null);
-                    toggleIndicators();
-                    break;
-                case "i":
-                    e.preventDefault();
-                    document.execCommand("italic", false, null);
-                    toggleIndicators();
-                    break;
-                case "u":
-                    e.preventDefault();
-                    document.execCommand("underline", false, null);
-                    toggleIndicators();
-                    break;
-                }
-            }
-        }); 
-
-        textBox.addEventListener("paste", function(e) {
-            e.preventDefault();
-            const cleanText = (e.originalEvent || e).clipboardData.getData("text/plain");
-            document.execCommand("insertText", false, cleanText);
-        });
-
-        function caretEnd() {
-            textBox.focus();
-            const range = document.createRange();
-            const selection = window.getSelection();
-            range.selectNodeContents(textBox);
-            range.collapse(false);
-            selection.removeAllRanges();
-            selection.addRange(range);
-        }
-
-        spellTick.addEventListener("change", function(e) {
-            textBox.spellcheck = this.checked;
-        });
 
         function darkTheme() {
             document.documentElement.style.setProperty("--custom-color", "#1f1f1f");
@@ -179,11 +118,6 @@
             textCol.textContent = "#1f1f1f";
             accentCol.textContent = "#77767b4d";
         }
-
-        function resetText() {
-            textBox.innerHTML = "";
-        }
-
 //abushamaniazi - .note    
         window.addEventListener("keydown", function(e) {
             if (e.key === "Escape") {
@@ -196,9 +130,13 @@
                 } else {
                     textBox.focus();
                     escUn.tabIndex = -1
-                    setTimeout(caretEnd, 10);
                 }
             }
+        });
+
+        textBox.addEventListener("input", function(e) {
+            textBox.style.height = "auto";
+            textBox.style.height = textBox.scrollHeight + "px";
         });
 
         function test() {
@@ -277,7 +215,9 @@
                 if (fileExt == "txt") {
                     const fileReader = new FileReader();
                     fileReader.onload = () => {
-                        textBox.innerText = fileReader.result;
+                        textBox.value = fileReader.result;
+                        textBox.style.height = "auto";
+                        textBox.style.height = textBox.scrollHeight + "px";
                     }
                     fileReader.readAsText(file);
                 } else if (["ttf", "otf", "woff", "woff2"].includes(fileExt)) {
@@ -294,26 +234,19 @@
                         document.documentElement.style.setProperty("--custom-font", '"UploadedFont", monospace');
                     }
                     fileReader.readAsDataURL(file);
-                } else if (fileExt == "html") {
-                    const fileReader = new FileReader();
-                    fileReader.onload = () => {
-                        textBox.innerHTML = fileReader.result;
-                    }
-                    fileReader.readAsText(file);
                 }
             }
-        };
+        }
 
         function saveFile() {
-            let valueInput = textBox.innerHTML;
-            let blobMIME = new Blob([valueInput], { type: "text/html" });
+            let valueInput = textBox.value;
+            let blobMIME = new Blob([valueInput], { type: "text/plain" });
             let url = URL.createObjectURL(blobMIME);
             let elem = document.createElement("a")
-            elem.setAttribute("download", "note.html");
+            elem.setAttribute("download", "note.txt");
             elem.href = url;
             elem.click();
-            URL.revokeObjectURL(url);
-            console.log(blobMIME);
+            console.log(blobMIME)
         }
 
         function accentUpdate() {

@@ -10,7 +10,6 @@
 <body>
     <div class="textCont">
         <div class="textPrompt">
-            <!-- <div class="userInput" id="textBox" contenteditable="true" placeholder="enter text here | ctrl+b to bold | ctrl+i to italics | ctrl+u to underline" autofocus></div> -->
             <div class="userInput" id="textBox" spellcheck="false" contenteditable="true" placeholder="enter text here | ctrl b to bold | ctrl i to italics | ctrl u to underline" autofocus></div>
         </div>
     </div>
@@ -83,6 +82,16 @@
     </div>
 
     <script>
+        const defConfig = {
+            fontFamily: '"JetBrains Mono", monospace',
+            fontSize: '1.2rem',
+            fontWeight: '300',
+            bgColor: "#1f1f1f",
+            fgColor: "#77767b4d",
+            textColor: "#ffffff",
+            spellcheckActive: false
+        }
+        let appConfig = { ...defConfig };
         const escUn = document.getElementById("escUn");
         escUn.tabIndex = -1
         const textBox = document.getElementById("textBox");
@@ -111,6 +120,48 @@
         const spellTick = document.getElementById("spellTick");
         const resetBtn = document.getElementById("resetBtn");
         let opacity;
+
+
+        function syncUI() {
+            if (textBox) {
+                textBox.spellcheck = appConfig.spellcheckActive;
+            }
+            if (spellTick) {
+                spellTick.checked = appConfig.spellcheckActive;
+            }
+            if (sliderSize) {
+                sliderSize.value = parseFloat(appConfig.fontSize);
+            }
+            if (sliderWeight) {
+                sliderWeight.value = appConfig.fontWeight;
+            }
+            if (weightValue) {
+                weightValue.content = appConfig.fontWeight;
+            }
+            if (mainbg) {
+                mainbg.value = appConfig.bgColor;
+            }
+            if (textColor) {
+                textColor.value = appConfig.textColor;
+            }
+            if (accentColor) {
+                accentColor.value = appConfig.fgColor;
+            }
+
+            const rootStyle = document.documentElement.style;
+            rootStyle.setProperty("--custom-font", appConfig.fontFamily);
+            rootStyle.setProperty("--custom-fSize", appConfig.fontSize);
+            rootStyle.setProperty("--custom-weight", appConfig.fontWeight);
+            rootStyle.setProperty("--custom-color", appConfig.bgColor);
+            rootStyle.setProperty("--custom-fColor", appConfig.textColor);
+            rootStyle.setProperty("--custom-accent", appConfig.fgColor);
+
+            console.log("sync yay");
+        }
+
+        document.addEventListener("DOMContentLoaded", function(e) {
+            syncUI();
+        })
 
         textBox.addEventListener("input", (e) => {
             if (e.target.innerText.trim() === "") {

@@ -393,7 +393,7 @@
                             textBox.setHTML(fileReader.result);
                         } else {
                             const template = document.createElement("template");
-                            template.innerHTML = fileReader.result();
+                            template.innerHTML = fileReader.result;
                             const scripts = template.content.querySelectorAll("script, iframe, object, embed");
                             scripts.forEach(s => s.remove());
                             const allNodes = template.content.querySelectorAll("*");

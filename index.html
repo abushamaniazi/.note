@@ -277,32 +277,76 @@
         fontBtn.addEventListener("click", function(e) {
             e.preventDefault();
             const fontText = fontLink.value.trim();
-            const shortUrl = new URL(fontText);
-            const familyName = shortUrl.searchParams.get("family");
-            const baseName = familyName.split(":")[0];
-            const family = baseName.replaceAll("+", " ");
-            shortUrl.searchParams.set("family", baseName);
-            const link = document.createElement("link");
-            link.rel = "stylesheet";
-            link.href = shortUrl.toString();
-            document.head.appendChild(link);
-            document.documentElement.style.setProperty("--custom-font", `'${family}', monospace`);
+            if (!fontText) return;
+
+            try {
+                const shortUrl = new URL(fontText);
+                if (shortUrl.protocol !== "https:") {
+                    alert("only https links allowed, security purposes");
+                    return;
+                }
+
+                const allowedCDNs = ["fonts.googleapis.com", "fonts.gstatic.com", "cdnjs.cloudflare.com", "fastly.jsdelivr.net"];
+                const isTrusted = allowedCDNs.some(cdn => shortUrl.hostname.endsWith(cdn));
+
+                if (!isTrusted) {
+                    const proceed = confirm("warning: this font link is hosted on an unverified external server. proceed?");
+                    if (!proceed) return;
+                }
+
+                const link = document.createElement("link");    
+                link.rel = "stylesheet";
+                link.href = shortUrl.toString();
+                document.head.appendChild(link);
+                const familyName = shortUrl.searchParams.get("family");
+                if (familyName) {
+                    const baseName = familyName.split(":")[0];
+                    const family = baseName.replaceAll("+", " ");
+                    shortUrl.searchParams.set("family", baseName);
+                    document.documentElement.style.setProperty("--custom-font", `'${family}', monospace`);
+                }
+            } catch(err) {
+                alert("invalid url");
+                console.log("error: ", err);
+            }
             fontLink.value = '';
         });
         fontLink.addEventListener("keydown", function(e) {
             if (e.key === "Enter") {
-                const fontText = fontLink.value.trim();
+            const fontText = fontLink.value.trim();
+            if (!fontText) return;
+
+            try {
                 const shortUrl = new URL(fontText);
-                const familyName = shortUrl.searchParams.get("family");
-                const baseName = familyName.split(":")[0];
-                const family = baseName.replaceAll("+", " ");
-                shortUrl.searchParams.set("family", baseName);
-                const link = document.createElement("link");
+                if (shortUrl.protocol !== "https:") {
+                    alert("only https links allowed, security purposes");
+                    return;
+                }
+
+                const allowedCDNs = ["fonts.googleapis.com", "fonts.gstatic.com", "cdnjs.cloudflare.com", "fastly.jsdelivr.net"];
+                const isTrusted = allowedCDNs.some(cdn => shortUrl.hostname.endsWith(cdn));
+
+                if (!isTrusted) {
+                    const proceed = confirm("warning: this font link is hosted on an unverified external server. proceed?");
+                    if (!proceed) return;
+                }
+
+                const link = document.createElement("link");    
                 link.rel = "stylesheet";
                 link.href = shortUrl.toString();
                 document.head.appendChild(link);
-                document.documentElement.style.setProperty("--custom-font", `'${family}', monospace`);
-                fontLink.value = '';
+                const familyName = shortUrl.searchParams.get("family");
+                if (familyName) {
+                    const baseName = familyName.split(":")[0];
+                    const family = baseName.replaceAll("+", " ");
+                    shortUrl.searchParams.set("family", baseName);
+                    document.documentElement.style.setProperty("--custom-font", `'${family}', monospace`);
+                }
+            } catch(err) {
+                alert("invalid url");
+                console.log("error: ", err);
+            }
+            fontLink.value = '';
             }
         });
 
@@ -348,7 +392,25 @@
                 } else if (fileExt == "html") {
                     const fileReader = new FileReader();
                     fileReader.onload = () => {
-                        textBox.innerHTML = fileReader.result;
+                        if (typeof textBox.setHTML === "function") {
+                            textBox.setHTML(fileReader.result);
+                        } else {
+                            const template = document.createElement("template");
+                            template.innerHTML = fileReader.result();
+                            const scripts = template.content.querySelectorAll("script, iframe, object, embed");
+                            scripts.forEach(s => s.remove());
+                            const allNodes = template.content.querySelectorAll("*");
+                            allNodes.forEach(node => {
+                                for (let i = node.attributes.length - 1; i >= 0; i--) {
+                                    if (node.attributes[i].name.startsWith("on")) {
+                                        node.removeAttribute(node.attributes[i].name);
+                                    }
+                                }
+                            });
+                            textBox.innerHTML = "";
+                            textBox.appendChild(template.content);
+                        }
+                        setTimeout(caretEnd, 10);
                     }
                     fileReader.readAsText(file);
                 }

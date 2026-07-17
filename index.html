@@ -426,6 +426,20 @@
             console.log(blobMIME);
         }
 
+        document.addEventListener("keydown", function(e) {
+            const ctrlKey = e.ctrlKey || e.metaKey;
+            if (ctrlKey) {
+                if(e.key.toLowerCase() === "s") {
+                    e.preventDefault();
+                    saveFile();
+                } else if (e.key.toLowerCase() === "o") {
+                    e.preventDefault();
+                    openInput.click();
+                    console.log("file open");
+                }
+            }
+        })
+
         function accentUpdate() {
             const hexColor = accentColor.value;
             const opacityPercent = accentOpacity.value;

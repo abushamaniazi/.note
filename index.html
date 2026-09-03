@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="indexstyle.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
 </head>
 <body> 
@@ -423,7 +424,12 @@
                     if (fileExt == "txt") {
                         const fileReader = new FileReader();
                         fileReader.onload = () => {
-                            textBox.innerText = fileReader.result;
+                            const htmlContent = marked.parse(fileReader.result);
+                            const template = document.createElement("template");
+                            template.innerHTML = htmlContent;
+                            textBox.innerHTML = "";
+                            textBox.appendChild(template.content);
+                            setTimeout(caretEnd, 10);
                         }
                         fileReader.readAsText(file);
                     } else if (fileExt == "html")   {

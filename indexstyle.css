@@ -14,6 +14,58 @@
     color: var(--custom-fColor);
 }
 
+.textField {
+    display: grid;
+    /* overflow-x: auto; */
+}
+
+.textCont {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.2s ease-in-out;
+    grid-area: 1 / 1;
+}
+.textCont.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.compareCont {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease-in-out;
+    grid-area: 1 / 1;
+}
+.compareCont.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.addCont {
+    position: fixed;
+    display: flex;
+    right: 15px;
+    bottom: 0;
+    justify-content: center;
+    max-width: fit-content;
+    background-color: var(--custom-accent);
+    border-radius: 6px;
+    padding: 5px;
+    transform: translateY(25%);
+    opacity: 0.1;
+    transition: opacity 0.3s ease-in-out;
+}
+.addCont:hover {
+    opacity: 1;
+}
+
+.overlayBtns {
+    background-color: var(--custom-fColor);
+    border-radius: 4px;
+    border: solid var(--custom-fColor);
+    color: var(--custom-color);
+}
+
 #textBox b, #textBox strong {
     font-weight: bold !important;
 }
@@ -21,8 +73,8 @@
 .userInput {
     color: var(--custom-fColor);
     caret-color: var(--custom-accent);
-    margin-right: 6px;
-    margin-left: 6px;
+    padding: 6px;
+    padding-left: 6px;
     white-space: pre-wrap;
     overflow-wrap: break-word;
     overflow-x: hidden;
@@ -32,6 +84,7 @@
     min-height: 1.5em;
     background: none;
     border: none;
+    box-sizing: border-box;
 }
 .userInput:focus {
     outline: none;
@@ -44,10 +97,50 @@
     opacity: 25%;
 }
 
+.tableRow {
+    display: flex;
+    flex-direction: row;
+    box-sizing: border-box;
+}
+.tablePrompt {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    box-sizing: border-box;
+}
+
+.titleCont {
+    background-color: rgb(92, 92, 92);
+    border-radius: 4px;
+    display: flex;
+    padding-right: 8px;
+    margin-right: 6px;
+    margin-left: 6px;
+    margin-top: 6px;
+    /* flex-direction: row; */
+}
+
+.closeTable {
+    background: none;
+    border: none;
+    opacity: 0.1;
+    transform: scale(1);
+    transition: transform opacity 0.3s ease-in-out;
+}
+.closeTable:hover {
+    opacity: 1;
+    transform: scale(1.08);
+}
+.closeTable:active {
+    opacity: 0.7;
+    transform: scale(1);
+}
+
 body {
     background-color: var(--custom-color);
     margin: 0;
     padding: 0;
+    overflow-x: auto;
 }
 
 .textCont {
@@ -69,12 +162,13 @@ body {
     visibility: hidden;
     transition:  0.2s ease-in-out;
     height: 100dvh;
-    width: 100dvw;
+    width: 100%;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 #escUn.visible {
     opacity: 1;
@@ -170,10 +264,12 @@ body {
     border-radius: 0.6rem;
     top: -50%;
     margin-left: 15rem;
+    pointer-events: none;
 }
 #fontCont.visible {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
 }
 
 #fontLink { 
@@ -323,10 +419,12 @@ input[type=checkbox]:focus + .slider {
     min-width: 290px;
     top: -50%;
     margin-left: 15rem;
+    pointer-events: none;
 }
 #colorCont.visible {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
 }
 
 .cBRow {
@@ -419,4 +517,28 @@ input[type=checkbox]:focus + .slider {
 
 #mainbg:focus, #textColor:focus, #accentColor:focus {
     outline: none;
+}
+
+.toolbarCont {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%) translateX(10%);
+    display: flex;
+    max-width: fit-content;
+    max-height: fit-content;
+    opacity: 0.1;
+    transition:  opacity 0.3s ease-in-out;
+}
+.toolbarCont:hover {
+    opacity: 1;
+}
+.toolbar {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    column-gap: 4px;
+    background-color: var(--custom-accent);
+    padding: 6px;
+    border-radius: 5px;
 }

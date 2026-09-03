@@ -7,10 +7,42 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
 </head>
-<body>
-    <div class="textCont">
-        <div class="textPrompt">
-            <div class="userInput" id="textBox" spellcheck="false" contenteditable="true" placeholder="enter text here | ctrl b to bold | ctrl i to italics | ctrl u to underline" autofocus></div>
+<body> 
+    <div class="textField">
+        <div class="textCont" id="textContainer">
+            <div class="textPrompt">
+                <div class="userInput" id="textBox" spellcheck="false" contenteditable="true" placeholder="enter text here | ctrl b to bold | ctrl i to italics | ctrl u to underline" autofocus></div>
+            </div>
+        </div>
+
+        <div class="compareCont" id="compareContainer">
+            <div class="addCont">
+                <button onclick="renderTexts()" class="overlayBtns">+</button>
+            </div>
+            <div class="tableRow" id="tableRow">
+                <div class="tablePrompt">
+                    <div class="titleCont">
+                        <div class="userInput" id="textBox" spellcheck="false" contenteditable="true" placeholder="title" autofocus></div>
+                        <button class="closeTable" onclick="this.parentElement.parentElement.remove()">x</button>
+                    </div>
+                    <div class="userInput" id="textBox" spellcheck="false" contenteditable="true" placeholder="enter text here | ctrl b to bold | ctrl i to italics | ctrl u to underline"></div>
+                </div>
+                <div class="tablePrompt">
+                    <div class="titleCont">
+                        <div class="userInput" id="textBox" spellcheck="false" contenteditable="true" placeholder="title"></div>
+                        <button class="closeTable" onclick="this.parentElement.parentElement.remove()">x</button>
+                    </div>
+                    <div class="userInput" id="textBox" spellcheck="false" contenteditable="true" placeholder="enter text here | ctrl b to bold | ctrl i to italics | ctrl u to underline"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toolbarCont">
+        <div class="toolbar">
+            <div class="tableCont">
+                <button onclick="toggleCompare()" class="overlayBtns">T</button>
+            </div>
         </div>
     </div>
 
@@ -20,7 +52,7 @@
             <div class="escMenu">
                 <button class="uBtn" id="saveBtn" onclick="saveFile()">save file</button> 
                 <button class="uBtn" id="openBtn" onclick="redirectOpen()">open file</button> 
-                <input type="file" id="openInput" accept=".txt, .html" style="display: none;"/>
+                <input type="file" id="openInput" accept=".txt, .html, .json" style="display: none;"/>
                 <button class="uBtn" id="colPick" onclick="colorGUI()">theme</button>
                 <div class="colorCont" id="colorCont">
                     <div class="cBRow">
@@ -119,8 +151,11 @@
         const accentOpacity = document.getElementById("accentOpacity");
         const spellTick = document.getElementById("spellTick");
         const resetBtn = document.getElementById("resetBtn");
+        const textContainer = document.getElementById("textContainer");
+        const compareContainer = document.getElementById("compareContainer");
+        const tableRow = document.getElementById("tableRow");
         let opacity;
-
+        let isTable = false;
 
         function syncUI() {
             if (textBox) {
@@ -230,6 +265,10 @@
 
         function resetText() {
             textBox.innerHTML = "";
+            const userInputs = document.querySelectorAll(".userInput");
+            userInputs.forEach((userInput) => {
+                userInput.innerHTML = "";
+            })
         }
 
 //abushamaniazi - .note    
@@ -366,13 +405,7 @@
             if (file) {
                 const fileName = file.name;    
                 const fileExt = fileName.split(".").pop().toLowerCase();
-                if (fileExt == "txt") {
-                    const fileReader = new FileReader();
-                    fileReader.onload = () => {
-                        textBox.innerText = fileReader.result;
-                    }
-                    fileReader.readAsText(file);
-                } else if (["ttf", "otf", "woff", "woff2"].includes(fileExt)) {
+                if (["ttf", "otf", "woff", "woff2"].includes(fileExt)) {
                     const fileReader = new FileReader();
                     fileReader.onload = () => {
                         const fontDataURL = fileReader.result;
@@ -386,44 +419,151 @@
                         document.documentElement.style.setProperty("--custom-font", '"UploadedFont", monospace');
                     }
                     fileReader.readAsDataURL(file);
-                } else if (fileExt == "html") {
-                    const fileReader = new FileReader();
-                    fileReader.onload = () => {
-                        if (typeof textBox.setHTML === "function") {
-                            textBox.setHTML(fileReader.result);
-                        } else {
-                            const template = document.createElement("template");
-                            template.innerHTML = fileReader.result;
-                            const scripts = template.content.querySelectorAll("script, iframe, object, embed");
-                            scripts.forEach(s => s.remove());
-                            const allNodes = template.content.querySelectorAll("*");
-                            allNodes.forEach(node => {
-                                for (let i = node.attributes.length - 1; i >= 0; i--) {
-                                    if (node.attributes[i].name.startsWith("on")) {
-                                        node.removeAttribute(node.attributes[i].name);
-                                    }
-                                }
-                            });
-                            textBox.innerHTML = "";
-                            textBox.appendChild(template.content);
+                } else if (!isTable) {
+                    if (fileExt == "txt") {
+                        const fileReader = new FileReader();
+                        fileReader.onload = () => {
+                            textBox.innerText = fileReader.result;
                         }
-                        setTimeout(caretEnd, 10);
+                        fileReader.readAsText(file);
+                    } else if (fileExt == "html")   {
+                        const fileReader = new FileReader();
+                        fileReader.onload = () => {
+                            if (typeof textBox.setHTML === "function") {
+                                textBox.setHTML(fileReader.result);
+                            } else {
+                                const template = document.createElement("template");
+                                template.innerHTML = fileReader.result;
+                                const scripts = template.content.querySelectorAll("script, iframe, object, embed");
+                                scripts.forEach(s => s.remove());
+                                const allNodes = template.content.querySelectorAll("*");
+                                allNodes.forEach(node => {
+                                    for (let i = node.attributes.length - 1; i >= 0; i--) {
+                                        if (node.attributes[i].name.startsWith("on")) {
+                                            node.removeAttribute(node.attributes[i].name);
+                                        }
+                                    }
+                                });
+                                textBox.innerHTML = "";
+                                textBox.appendChild(template.content);
+                            }
+                            setTimeout(caretEnd, 10);
+                        }
+                        fileReader.readAsText(file);
+                    } else {
+                        alert("please use previously saved txt/html file for text mode.");
+                        event.target.value = "";
                     }
-                    fileReader.readAsText(file);
+                } else if (isTable) {
+                    if (fileExt == "json") {
+                        console.log("json yay");
+                        const tableRow = document.querySelector(".tableRow");
+                        const fileReader = new FileReader();
+                        fileReader.onload = () => {
+                            try {
+                                const data = JSON.parse(fileReader.result);
+
+                                if(!Array.isArray(data)) {
+                                    alert("json file does not contain table layout. invalid json file.");
+                                    return;
+                                }
+                                const isValidTable = data.every(item => {
+                                    const isObject = typeof item == "object" && item !== null;
+                                    const hasTitle = "title" in item;
+                                    const hasContent = "content" in item;
+
+                                    return isObject && hasTitle && hasContent;
+                                });
+                                if (!isValidTable) {
+                                    alert("json file structure is invalid.");
+                                    return;
+                                }
+
+                                tableRow.textContent = "";
+
+                                data.forEach((item) => {
+                                    const tablePromptDiv = document.createElement("div");
+                                    tablePromptDiv.className = "tablePrompt";
+
+                                    const titleCont = document.createElement("div");
+                                    titleCont.className = "titleCont";
+
+                                    const userInputTDiv = document.createElement("div");
+                                    userInputTDiv.className = "userInput";
+                                    userInputTDiv.id = "textBox";
+                                    userInputTDiv.spellcheck = "false";
+                                    userInputTDiv.setAttribute("contenteditable", "true");
+                                    userInputTDiv.innerHTML = item.title;
+
+                                    const closeTable = document.createElement("button");
+                                    closeTable.className = "closeTable";
+                                    closeTable.onclick = () => {
+                                        tablePromptDiv.remove();
+                                    }
+                                    closeTable.textContent = "x";
+
+                                    titleCont.appendChild(userInputTDiv);
+                                    titleCont.appendChild(closeTable);
+
+                                    const userInputDiv = document.createElement("div");
+                                    userInputDiv.className = "userInput";
+                                    userInputDiv.id = "textBox";
+                                    userInputDiv.spellcheck = "false";
+                                    userInputDiv.setAttribute("contenteditable", "true");
+                                    userInputDiv.innerHTML = item.content;
+
+                                    tablePromptDiv.appendChild(titleCont);
+                                    tablePromptDiv.appendChild(userInputDiv);
+                                    tableRow.appendChild(tablePromptDiv);
+                                })
+                            } catch (error) {
+                                alert("invalid or corrupted json file.")
+                            }
+                        }
+                        fileReader.readAsText(file);
+                    } else {
+                        alert("please use previously saved json file for table mode.");
+                        event.target.value = "";
+                    }
                 }
             }
         };
 
+
         function saveFile() {
-            let valueInput = textBox.innerHTML;
-            let blobMIME = new Blob([valueInput], { type: "text/html" });
-            let url = URL.createObjectURL(blobMIME);
-            let elem = document.createElement("a")
-            elem.setAttribute("download", "note.html");
-            elem.href = url;
-            elem.click();
-            URL.revokeObjectURL(url);
-            console.log(blobMIME);
+            if (!isTable) {
+                let valueInput = textBox.innerHTML;
+                let blobMIME = new Blob([valueInput], { type: "text/html" });
+                let url = URL.createObjectURL(blobMIME);
+                let elem = document.createElement("a")
+                elem.setAttribute("download", "note.html");
+                elem.href = url;
+                elem.click();
+                URL.revokeObjectURL(url);
+                console.log(blobMIME);
+            } else if (isTable) {
+                const textArray = [];
+                const tablePrompts = document.querySelectorAll(".tablePrompt");
+                tablePrompts.forEach((tablePrompt) => {
+                    const inputs = tablePrompt.querySelectorAll(".userInput");
+
+                    const inputObject = {
+                        title: inputs[0].innerHTML,
+                        content: inputs[1].innerHTML
+                    };
+
+                    textArray.push(inputObject);
+                })
+                const jsonString = JSON.stringify(textArray, null, 2);
+                let blobMIME = new Blob([jsonString], { type: "applications/json" });
+                let url = URL.createObjectURL(blobMIME);
+                let elem = document.createElement("a");
+                elem.setAttribute("download", "table.json");
+                elem.href = url;
+                elem.click();
+                URL.revokeObjectURL(url);
+                console.log(blobMIME);
+            }
         }
 
         document.addEventListener("keydown", function(e) {
@@ -451,6 +591,52 @@
 
             accentCol.textContent = finalAccent;
             document.documentElement.style.setProperty("--custom-accent", finalAccent);
+        }
+
+        function toggleCompare() {
+            textContainer.classList.toggle("hidden");
+            isTable = !isTable;
+            compareContainer.classList.toggle("visible");
+            console.log(isTable);
+        }
+
+        function renderTexts() {
+            const fragment = document.createDocumentFragment();
+
+            const tablePromptDiv = document.createElement("div");
+            tablePromptDiv.className = "tablePrompt";
+
+            const titleCont = document.createElement("div");
+            titleCont.className = "titleCont";
+
+            const userInputTDiv = document.createElement("div");
+            userInputTDiv.className = "userInput";
+            userInputTDiv.id = "textBox";
+            userInputTDiv.spellcheck = "false";
+            userInputTDiv.setAttribute("contenteditable", "true");
+            userInputTDiv.setAttribute("placeholder", "title");
+
+            const closeTable = document.createElement("button");
+            closeTable.className = "closeTable";
+            closeTable.onclick = () => {
+                tablePromptDiv.remove();
+            }
+            closeTable.textContent = "x";
+
+            titleCont.appendChild(userInputTDiv);
+            titleCont.appendChild(closeTable);
+
+            const userInputDiv = document.createElement("div");
+            userInputDiv.className = "userInput";
+            userInputDiv.id = "textBox";
+            userInputDiv.spellcheck = "false";
+            userInputDiv.setAttribute("contenteditable", "true");
+            userInputDiv.setAttribute("placeholder", "enter text here | ctrl b to bold | ctrl i to italics | ctrl u to underline");
+
+            tablePromptDiv.appendChild(titleCont);
+            tablePromptDiv.appendChild(userInputDiv);
+            fragment.appendChild(tablePromptDiv);
+            tableRow.appendChild(fragment);
         }
 
         mainbg.addEventListener("input", function() {

@@ -97,6 +97,12 @@
     opacity: 25%;
 }
 
+.userInput p,
+.userInput div {
+    margin: 0;
+    padding: 0;
+}
+
 .tableRow {
     display: flex;
     flex-direction: row;
